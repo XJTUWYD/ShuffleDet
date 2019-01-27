@@ -1,4 +1,4 @@
-author: YadongWei(github:XJTUWYD) & ZhijunTU(github:https://github.com/Ironteen) from XJTU if you have any questions please contact use with the authors email(yadongwei2@gmail.com)
+author: YadongWei(github:https://github.com/XJTUWYD) & ZhijunTU(github:https://github.com/Ironteen) from XJTU if you have any questions please contact use with the authors email(yadongwei2@gmail.com)
 
 ## Tips:
 this work is based on https://github.com/BichenWuUCB/squeezeDet, what different is that:
