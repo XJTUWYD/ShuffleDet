@@ -9,7 +9,7 @@ this work is based on https://github.com/BichenWuUCB/squeezeDet, what different 
 
 ## Installation:
   ```Shell
-  https://github.com/XJTUWYD/shuffledet
+  git clone https://github.com/XJTUWYD/shuffledet
   ```
 - Use pip to install required Python packages:
     ```Shell
