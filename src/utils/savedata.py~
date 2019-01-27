@@ -1,0 +1,17 @@
+import tensorflow as tf
+import numpy as np
+import sys
+from save_theta import *
+
+# outdir = sys.argv[0]
+# print (outdir)
+
+tf.app.flags.DEFINE_string('gpu', '0', """gpu id.""")
+
+with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
+    saver = tf.train.import_meta_graph('../../log/train/model.ckpt-310500.meta')
+    saver.restore(sess, tf.train.latest_checkpoint(''))
+
+    for x in tf.trainable_variables():
+        filename = '../../data/float2fixed' + re.sub(r'/', '_', x.op.name) + ':0'
+        savetheta(filename, x)

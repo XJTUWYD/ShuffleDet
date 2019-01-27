@@ -1,0 +1,1 @@
+python ./src/train.py   --dataset=KITTI --pretrained_model_path=./data/SqueezeNet/squeezenet_v1.1.pkl --data_path=./data/KITTI --image_set=train   --train_dir='/data1/wyd/Downloads/shuffledet/log/train_original'   --net=shuffleDet --summary_step=200 --checkpoint_step=10   --gpu=0

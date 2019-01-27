@@ -1,0 +1,201 @@
+#! /usr/bin/python
+
+import numpy as np
+import sys
+import string
+import re
+import tensorflow as tf
+
+def next_comb(comb, k, n):
+    i = k - 1
+    comb[i] += 1
+
+    while i > 0 and comb[i] >= n - k + 1 + i:
+        i -= 1
+        comb[i] += 1
+
+    if comb[0] > n - k:
+        return False
+
+    i += 1
+    while i < k:
+        comb[i] = comb[i - 1] + 1
+        i += 1
+
+    return True
+
+def fact(n, nitem):
+    ret = n
+    nitem -= 1
+    while nitem != 0:
+        ret *= n - 1
+        nitem -= 1
+        n -= 1
+    return ret
+
+def powcomb_array(bitwidth, pow_low, pow_high):
+    pow_width = pow_high - pow_low + 1
+    pow_array = np.zeros((pow_width))
+    d1 = fact(pow_width, pow_width - bitwidth) / fact(pow_width - bitwidth, pow_width - bitwidth)
+    d2 = bitwidth
+    comb = np.zeros((int(d1), d2))
+    index = np.zeros((d2), dtype = np.int)
+
+    for i in range(pow_low, pow_high + 1):
+        pow_array[i] = 2 ** i
+    for i in range(0, bitwidth):
+        index[i] = i
+        comb[0][i] = pow_array[index[i]]
+    for i in range(1, int(d1)):
+        next_comb(index, d2, pow_width)
+        for j in range(0, d2):
+            comb[i][j] = pow_array[index[j]]
+
+    return comb
+
+def bsearch(array, w):
+    # array_sort = np.sort(array)
+    high = array.shape[0] - 1
+    low = 0
+    ret = 0
+
+    while (low <= high):
+        high = array.shape[0] - 1
+        low = 0
+        mid = int(np.floor((high - low) / 2 + low))
+        # print high, mid, low, array.shape[0]
+        if mid == low or abs(w) == array[mid]:
+            if abs(abs(w)-array[mid]) > abs(abs(w)-array[high]):
+                ret = array[high]
+            else:
+                ret = array[mid]
+            if w < 0:
+                ret = -ret
+            return ret
+
+        if abs(w) > array[mid]:
+            low = mid
+            array = array[mid:high+1]
+        elif abs(w) < array[mid]:
+            high = mid
+            array = array[low:mid]
+
+def bsearch_tf(array, w):
+    high = (np.ones(np.shape(w))*(array.shape[0] - 1)).astype(int)
+    low = (np.zeros(np.shape(w))).astype(int)
+    array_eq = np.zeros(np.shape(w))
+    ret = np.zeros(np.shape(w))
+
+    # the code below is based on the commented code followed it
+    while np.sum(array_eq) != np.shape(array_eq)[0]:
+        mid = (np.floor((high - low) / 2 + low)).astype(int)
+        array_eq = np.logical_or(np.equal(mid, low), np.equal(np.abs(w), array[mid]))
+        ret = np.where(np.logical_and(array_eq, tf.greater(np.abs(np.abs(w)-array[mid]), np.abs(np.abs(w)-array[high]))), array[high], array[mid])
+        ret = np.where(tf.less(w, np.zeros(np.shape(w))), -ret, ret)
+        low = np.where(tf.greater(np.abs(w), array[mid]), mid, low)
+        high = np.where(tf.less(np.abs(w), array[mid]), mid, high)
+
+    return ret
+
+    # while (low <= high):
+    #     high = array.shape[0] - 1
+    #     low = 0
+    #     mid = int(np.floor((high - low) / 2 + low))
+    #     # print high, mid, low, array.shape[0]
+    #     if mid == low or abs(w) == array[mid]:
+    #         if abs(abs(w)-array[mid]) > abs(abs(w)-array[high]):
+    #             ret = array[high]
+    #         else:
+    #             ret = array[mid]
+    #         if w < 0:
+    #             ret = -ret
+    #         return ret
+
+    #     if abs(w) > array[mid]:
+    #         low = mid
+    #         array = array[mid:high+1]
+    #     elif abs(w) < array[mid]:
+    #         high = mid
+    #         array = array[low:mid]
+
+def parse_tensor_str(tensor_str):
+    # print (tensor_str)
+    strre = r'(?<=\d)(?=\s)'
+    parsed_str = re.sub(strre, ',', tensor_str)
+    strre = r'\](\s*)\['
+    m = re.search(strre, parsed_str)
+    if m:
+        parsed_str = re.sub(strre, '],' + m.group(1) + '[', parsed_str)
+    # print (parsed_str)
+    tensor = eval(parsed_str)
+    return tensor
+
+def float2fix(bitwidth, pow_low, pow_high):
+    pow_comb_array = powcomb_array(bitwidth, pow_low, pow_high)
+    floats = np.sum(pow_comb_array, axis = 1)
+    sorted_array = np.sort(np.append(floats, 0))
+    fixed_ops = []
+    # fo = 0
+    for x in tf.trainable_variables():
+        filename = 'data/' + re.sub(r'/', '_', x.op.name) + ':0'
+        try:
+            fo = open(filename)
+            fstr = fo.read()
+            # fix_op = x.assign(parse_tensor_str(fstr))
+            x = x.assign(tf.Variable(parse_tensor_str(fstr)))
+        except IOError:
+            print ("No such file: " + filename)
+            continue
+        fo.close()
+        fixed_ops.append(x)
+
+    return tf.group(*fixed_ops)
+
+def load_from_dir(directory):
+    fixed_ops = []
+    for x in tf.trainable_variables():
+        filename = directory + '/' + re.sub(r'/', '_', x.op.name) + ':0'
+        try:
+            fo = open(filename)
+            fstr = fo.read()
+            # fix_op = x.assign(parse_tensor_str(fstr))
+            x = x.assign(tf.Variable(parse_tensor_str(fstr)))
+        except IOError:
+            print ("No such file: " + filename)
+            continue
+        fo.close()
+        fixed_ops.append(x)
+
+    return tf.group(*fixed_ops)
+
+# bitwidth = string.atoi(sys.argv[1])
+# pow_low = string.atoi(sys.argv[2])
+# pow_high = string.atoi(sys.argv[3])
+# pow_comb_array = powcomb_array(bitwidth, pow_low, pow_high)
+# # print pow_comb_array
+# floats = np.sort(np.sum(pow_comb_array, axis = 1))
+# # print floats
+# filenames = sys.argv[4:]
+# # print "Converting files: ", filenames
+# for filename in filenames:
+#     print "Converting file \"" + filename + "\"..."
+#     lines = []
+#     outputs = []
+#     try:
+#         infile = open(filename)
+#         lines = infile.readlines()
+#     except IOError:
+#         print "No such file \"" + filename + "\"..."
+#         continue
+#     finally:
+#         infile.close()
+#     for line in lines:
+#         f = string.atof(line)
+#         if f == 0:
+#             outputs.append(0)
+#             continue;
+#         outputs.append(bsearch(floats, f))
+
+#     outfile = open(filename+"_convert", 'w')
+#     print >>outfile, "\n".join(map(str, outputs))
+#     # print "Converted file saved in \"" + filename + "_convert" + "\""

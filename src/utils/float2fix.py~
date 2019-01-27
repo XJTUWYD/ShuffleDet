@@ -1,0 +1,39 @@
+#! /usr/bin/python3
+
+import sys
+import re
+import numpy as np
+import tensorflow as tf
+
+def savetheta(file_name, variable):
+	#np.savetxt('data/'+file_name,variable)
+	np.set_printoptions(threshold=np.nan)
+	file = open(file_name,'w')
+	file.write(str(variable));
+	file.close()
+	print(file_name + " has been saved")
+
+def save_data(sess, savedir):
+    for x in tf.trainable_variables():
+        filename = savedir + '/' + re.sub(r'/', '_', x.op.name) + ':0'
+        savetheta(filename, x.eval(session=sess))
+
+def float2fix_offline(bitwidth, pow_low, pow_high, data_dir):
+    os.system("../../scripts/float2fix.sh -p 0 -b " + bitwidth + " -r " + pow_low + " " + pow_high + " -f " + data_dir + "/*")
+
+def load_from_dir(sess, directory):
+    fixed_ops = []
+    for x in tf.trainable_variables():
+        filename = directory + '/' + re.sub(r'/', '_', x.op.name) + ':0'
+        try:
+            fo = open(filename)
+            fstr = fo.read()
+            # fix_op = x.assign(parse_tensor_str(fstr))
+            op = x.assign(tf.Variable(parse_tensor_str(fstr)))
+        except IOError:
+            print ("No such file: " + filename)
+            continue
+        fo.close()
+        fixed_ops.append(op)
+
+    return tf.group(*fixed_ops)
