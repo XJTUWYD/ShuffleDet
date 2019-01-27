@@ -1,7 +1,3 @@
-# Author: Bichen Wu (bichen@berkeley.edu) 08/25/2016
-
-"""Base Model configurations"""
-
 import os
 import os.path as osp
 import numpy as np

@@ -1,7 +1,3 @@
-# Author: Bichen Wu (bichen@berkeley.edu) 08/25/2016
-
-"""The data base wrapper class"""
-
 import os
 import random
 import shutil

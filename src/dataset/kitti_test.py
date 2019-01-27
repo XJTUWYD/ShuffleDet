@@ -1,7 +1,3 @@
-# Author: Bichen Wu (bichen@berkeley.edu) 08/25/2016
-
-"""Image data base class for kitti"""
-
 import cv2
 import os 
 import numpy as np

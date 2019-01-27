@@ -1,7 +1,3 @@
-# Author: Bichen Wu (bichen@berkeley.edu) 08/25/2016
-
-"""Model configuration for pascal dataset"""
-
 import numpy as np
 
 from config import base_model_config
