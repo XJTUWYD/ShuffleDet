@@ -64,12 +64,12 @@ you need to change the imagenet_path into your ImageNet path
     ```Shell
   ./eval_shuffleDet.sh
   ```
-- save input activation and parameters
+- save input activation and parameters which is saved in 'activation&parameters8bit'
     ```Shell
   ./save_parameters.sh
   ```
-  when you run "save_parameters.sh",you will get the "activation&parameters8bit" file
-   shuffledet/activation&parameters8bit/
+- the dir list of 'activation&parameters8bit' is:
+    ```Shell
                     |->input/
                     |     L-> input.txt
                     |->parameters/
@@ -81,3 +81,5 @@ you need to change the imagenet_path into your ImageNet path
                     |     |-> ...
                     |     |-> stage_4_3_right_a_w_fold.txt
                     L     L-> stage_6_3_right_c_w_fold.txt
+  ```
+
