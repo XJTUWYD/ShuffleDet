@@ -137,12 +137,12 @@ def base_model_config(dataset='PASCAL_VOC'):
   # indicate if the model is in training mode
   cfg.IS_TRAINING = False
 
-  # save path--activation,input,parameter
-  cfg.SAVE_PATH = '/data0119'
-
+  # the path of saving activation,input and parameter
+  cfg.SAVE_PATH = '/activation&parameters8bits'
+  # the structure of shuffledet
   cfg.LAYER_LIST = ['conv1', 'stage_1_1','stage_2_1','stage_2_2','stage_2_3','stage_3_1','stage_4_1','stage_4_2','stage_4_3','stage_4_4','stage_4_5','stage_4_6','stage_4_7','stage_5_1','stage_6_1','stage_6_2','stage_6_3']
-
+  # the path of test image
   cfg.IM_PATH = '/data2/dac_dataset/quantization_tutu/testing/image_2/boat1_000459.jpg'
-
+  # the path of ckpt
   cfg.CHECKPOINT = "log/train_original/model.ckpt"
   return cfg

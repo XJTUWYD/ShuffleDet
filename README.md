@@ -64,3 +64,20 @@ you need to change the imagenet_path into your ImageNet path
     ```Shell
   ./eval_shuffleDet.sh
   ```
+- save input activation and parameters
+    ```Shell
+  ./save_parameters.sh
+  ```
+  when you run "save_parameters.sh",you will get the "activation&parameters8bit" file
+   shuffledet/activation&parameters8bit/
+                    |->input/
+                    |     L-> input.txt
+                    |->parameters/
+                    |     |-> conv1_bias.txt
+                    |     |-> conv1_weight.txt
+                    |     |-> ratio_key.txt 
+                    |     |-> ratio_value.txt 
+                    |     |-> ... 
+                    |     |-> ...
+                    |     |-> stage_4_3_right_a_w_fold.txt
+                    L     L-> stage_6_3_right_c_w_fold.txt
